@@ -12,21 +12,22 @@ class apiFunc
 
     );
 
-    function updateEventCategory(){
+    function updateEventCategory()
+    {
         $db = Db::getConnection();
-        $url = URL."/".VERSION."/".$this->ARRAY['event_category']['name'];
+        $url = URL . "/" . VERSION . "/" . $this->ARRAY['event_category']['name'];
         $result = file_get_contents($url);
         $arr = json_decode($result, true);
-        if(count($arr)>0){
-            $s1 = 0; $s2 = 0;
-            foreach ($arr as $k=>$v){
+        if (count($arr) > 0) {
+            $s1 = 0;
+            $s2 = 0;
+            foreach ($arr as $k => $v) {
                 $result = $db->query("SELECT ID FROM `LIST_EVENT_CATEGORY` WHERE NAME_ENG = '{$v['slug']}' AND NAME_RU = '{$v['name']}'");
                 $row = $result->fetch(PDO::FETCH_ASSOC);
-                if($row) {
+                if ($row) {
 
                     $s1++;
-                }
-                else {
+                } else {
                     $sql = 'INSERT INTO `LIST_EVENT_CATEGORY` '
                         . '(NAME_ENG,NAME_RU) VALUES (:ENG, :RU)';
                     $result = $db->prepare($sql);
@@ -36,24 +37,25 @@ class apiFunc
                     $s2++;
                 }
             }
-            echo "Найдено событий: ".count($arr)." | Событий в базе: ".$s1." | Добавлено: ".$s2.PHP_EOL;
+            echo "Найдено событий: " . count($arr) . " | Событий в базе: " . $s1 . " | Добавлено: " . $s2 . PHP_EOL;
         }
     }
 
-    function updatePlaceCategory(){
+    function updatePlaceCategory()
+    {
         $db = Db::getConnection();
-        $url = URL."/".VERSION."/".$this->ARRAY['place_category']['name'];
+        $url = URL . "/" . VERSION . "/" . $this->ARRAY['place_category']['name'];
         $result = file_get_contents($url);
         $arr = json_decode($result, true);
-        if(count($arr)>0){
-            $s1 = 0; $s2 = 0;
-            foreach ($arr as $k=>$v){
+        if (count($arr) > 0) {
+            $s1 = 0;
+            $s2 = 0;
+            foreach ($arr as $k => $v) {
                 $result = $db->query("SELECT ID FROM `LIST_PLACE_CATEGORY` WHERE NAME_ENG = '{$v['slug']}' AND NAME_RU = '{$v['name']}'");
                 $row = $result->fetch(PDO::FETCH_ASSOC);
-                if($row) {
+                if ($row) {
                     $s1++;
-                }
-                else {
+                } else {
                     $s2++;
                     $sql = 'INSERT INTO `LIST_PLACE_CATEGORY` '
                         . '(NAME_ENG,NAME_RU) VALUES (:ENG, :RU)';
@@ -63,9 +65,66 @@ class apiFunc
                     $result->execute();
                 }
             }
-            echo "Найдено мест: ".count($arr)." | Мест в базе: ".$s1." | Добавлено: ".$s2.PHP_EOL;
+            echo "Найдено мест: " . count($arr) . " | Мест в базе: " . $s1 . " | Добавлено: " . $s2 . PHP_EOL;
         }
     }
 
+    function getPlaceFromRadiys($lat, $lon)
+    {
+        $db = Db::getConnection();
 
+      //  (х-а)²+(у-b)²=r²
+
+       // $s = ($lat)
+
+        $radius = (0.150 *0.1988)/2;
+
+        $result = $db->query("SELECT * FROM LIST_PLACES WHERE lat BETWEEN ({$lat} - {$radius}) AND ({$lat} + {$radius}) AND lon BETWEEN ({$lon} - {$radius}) AND ({$lon} + {$radius})");
+
+        $i=0;
+        $datajson = array(
+            'type' => 'FeatureCollection',
+            'features' => array()
+        );
+
+        while ($row = $result->fetch(PDO::FETCH_ASSOC)){
+
+            // {"type": "Feature",
+            // "id": 0,
+            // "geometry": {"type": "Point", "coordinates": [55.831903, 37.411961]},
+            // "properties": {"balloonContent": "Содержимое балуна", "clusterCaption": "Метка с iconContent", "hintContent": "Текст подсказки", "iconContent": "1"},
+            // "options": {"iconColor": "#ff0000", "preset": "islands#blueCircleIcon"}},
+
+            $datajson['features'][] = array(
+                'type' => 'Feature',
+                'id' => $i ,
+                'geometry' => array(
+                    'type' => 'Point',
+                    'coordinates' => [$row['LAT'],$row['LON']]
+                ),
+                'properties' => array(
+                    'balloonContent' => "{$row['SHORT_TITLE']}",
+                    'clusterCaption' => "{$row['TIMETABLE']}",
+                    'hintContent' => "{$row['ADDRESS']}",
+                    'iconContent' => "{$row['SLUG']}"
+                ),
+                'options' => array(
+                    'iconColor' => '#ff0000',
+                    'preset' => 'islands#blueCircleIcon'
+                )
+
+
+            );
+
+            //echo $row['ADDRESS'].PHP_EOL;
+
+            $i++;
+        }
+       echo  $jsondata = json_encode($datajson);
+        /*echo "<pre>";
+        print_r();
+        echo "</pre>";*/
+
+        require_once ("view/map.php");
+    }
 }

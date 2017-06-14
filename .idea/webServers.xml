@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="bddb1a11-6e10-44fa-b7e7-d2d8db00aaf0" name="api-kudago" url="http://xp0.ru/api-kudago">
+        <fileTransfer host="bestamp.ru" port="21" rootFolder="/www/xp0.ru/api-kudago">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="21" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
