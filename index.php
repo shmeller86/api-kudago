@@ -17,7 +17,13 @@ $calc = new CalcDistance();
 //$engine->updatePlaceCategory();
 //$engine->getPlaceFromRadiys('59.911556','30.267808');
 
-echo $calc->calculateTheDistance('59.9341625','30.334574','59.93476347','30.33078969');
+$engine->getPlaceMeta();
+
+//echo $calc->calculateTheDistance('59.9341625','30.334574','59.93476347','30.33078969');
+
+
+
+
 
 
 

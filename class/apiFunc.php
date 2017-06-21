@@ -252,6 +252,52 @@ class apiFunc
         }
     }
 
+    function getPlaceMeta(){
+        $db = Db::getConnection();
+        try {
+            $result = $db->query("SELECT PLACE_LAST_ID, PLACE_LAST_PAGE FROM `SETTINGS`");
+            $row = $result->fetch(PDO::FETCH_ASSOC);
+            if($row){
+
+                $url = URL."/".VERSION."/".$this->ARRAY['place_detail']['name']."/?fields=id%2Cslug&order_by=id&page=".$row['PLACE_LAST_PAGE']."&page_size=100";
+                $result = file_get_contents($url);
+                $arr = json_decode($result, true);
+
+               if(!isset($arr['detail'])){
+                    foreach ($arr['results'] as $k => $v){
+                        $result = $db->query("SELECT ID FROM `LIST_PLACES` WHERE ID = '{$v['id']}' AND SLUG = '{$v['slug']}'");
+                        $row = $result->fetch(PDO::FETCH_ASSOC);
+                        if ($row) {
+                            echo $v['id']."isset this record".PHP_EOL;
+                        }
+                        else {
+                            // do something
+                        }
+                    }
+                    $nextPage = $arr['next'];
+                    if($nextPage !== null){
+                        $sql = "UPDATE `SETTINGS` SET PLACE_LAST_PAGE={$nextPage}";
+                        $result = $db->prepare($sql);
+                        $result->execute();
+                    }
+                }
+
+
+            }
+        }
+        catch (PDOException $e) {
+            die($e);
+        }
+    }
+
+    function checkNewEvent(){
+
+    }
+
+    function getEventDetail(){
+
+    }
+
     function getPlaceFromRadiys($lat, $lon)
     {
         $db = Db::getConnection();
