@@ -1,7 +1,7 @@
 <?php
 return array(
-    'host' => 'bestamp.ru',
+    'host' => '',
     'dbname' => 'events',
-    'user' => 'shmeller',
-    'password' => '3499848',
+    'user' => '',
+    'password' => '',
 );
